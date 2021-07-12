@@ -13,10 +13,4 @@ static inline __wasi_errno_t errno_fixup_directory(__wasi_fd_t fd,
   return error;
 }
 
-// WASI syscalls should just return ENOTSOCK if that's what the problem is.
-static inline __wasi_errno_t errno_fixup_socket(__wasi_fd_t fd,
-                                                  __wasi_errno_t error) {
-  return error;
-}
-
 #endif

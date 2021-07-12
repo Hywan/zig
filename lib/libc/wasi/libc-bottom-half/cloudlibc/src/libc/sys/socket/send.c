@@ -2,33 +2,33 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <common/errno.h>
-
 #include <sys/socket.h>
 
 #include <assert.h>
 #include <wasi/api.h>
+#include <wasi/wasi_experimental_network.h>
 #include <errno.h>
 
-ssize_t send(int socket, const void *buffer, size_t length, int flags) {
-  // This implementation does not support any flags.
+ssize_t send(int fd, const void *buffer, size_t length, int flags) {
   if (flags != 0) {
     errno = EOPNOTSUPP;
     return -1;
   }
 
-  // Prepare input parameters.
-  __wasi_ciovec_t iov = {.buf = buffer, .buf_len = length};
-  __wasi_ciovec_t *si_data = &iov;
-  size_t si_data_len = 1;
-  __wasi_siflags_t si_flags = 0;
+  __wasi_ciovec_t iov = {
+    .buf = buffer,
+    .buf_len = length
+  };
+  uint32_t iov_size = 1;
+  __wasi_siflags_t iov_flags = flags;
+  uint32_t iov_size_out;
 
-  // Perform system call.
-  size_t so_datalen;
-  __wasi_errno_t error = __wasi_sock_send(socket, si_data, si_data_len, si_flags, &so_datalen);
-  if (error != 0) {
-    errno = errno_fixup_socket(socket, error);
+  __wasi_errno_t err = __wasi_experimental_network_socket_send(fd, &iov, iov_size, iov_flags, &iov_size_out);
+
+  if (0 != err) {
+    errno = err;
     return -1;
   }
-  return so_datalen;
+
+  return iov_size_out;
 }

@@ -34,6 +34,11 @@
 extern "C" {
 #endif
 
+// TODO: Remove this. Find why `fcntl` does not work as expected.
+int socket_set_nonblocking(int sockfd, int nonblocking);
+// TODO: Remove this. Find why `close` does not work as expected.
+int socket_close(int sockfd);
+
 #ifdef __cplusplus
 }
 #endif
